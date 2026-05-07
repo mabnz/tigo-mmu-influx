@@ -417,8 +417,7 @@ footer a { color: var(--muted); }
                           <div class="v" id="s-reporting">—</div>
                           <div class="reporting-bar"><span id="s-reporting-bar" style="width:0%"></span></div></div>
         <div class="stat"><div class="k">Total power</div>
-                          <div class="v" id="s-power">—</div>
-                          <div class="sub">across reporting panels</div></div>
+                          <div class="v" id="s-power">—</div></div>
         <div class="stat"><div class="k">Unit ID</div>
                           <div class="v" id="s-unit" style="font-size:14px;font-family:ui-monospace,monospace">—</div>
                           <div class="sub" id="s-started"></div></div>
