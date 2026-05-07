@@ -4,6 +4,8 @@ Scrape panel-level data from a [Tigo](https://www.tigoenergy.com/) MMU (Module
 Maintenance Unit) status page and write it to **InfluxDB 2.x**, with
 a small Flask dashboard on top.
 
+![Dashboard screenshot](docs/dashboard.png)
+
 The MMU exposes an HTML status page on the local network (typically at
 `http://192.168.1.1/cgi-bin/mmdstatus`). This app polls that page on a
 schedule, parses the per-panel readings, writes them to InfluxDB as line
