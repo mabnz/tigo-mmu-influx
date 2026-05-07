@@ -363,6 +363,11 @@ header h1 {
     word-break: break-word;
 }
 .event::before { content: "⚠ "; }
+.event.danger {
+    color: var(--bad);
+    background: rgba(212,69,58,.10);
+    border-color: rgba(212,69,58,.40);
+}
 
 .reporting-bar {
     height: 6px; border-radius: 4px;
@@ -549,7 +554,7 @@ function render(data) {
         const powerPct = p.power_pct != null ? Math.max(0, Math.min(100, p.power_pct)) : 0;
 
         const eventHtml = p.event
-            ? `<div class="event">Event: ${p.event}</div>`
+            ? `<div class="event${p.power_w === 0 ? " danger" : ""}">Event: ${p.event}</div>`
             : "";
 
         card.innerHTML = `
