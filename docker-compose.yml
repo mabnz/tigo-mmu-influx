@@ -1,0 +1,15 @@
+services:
+  tigo:
+    build: .
+    image: tigo-mmu-influx:latest
+    container_name: tigo
+    restart: unless-stopped
+    env_file:
+      - tigo.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - tigo_state:/var/lib/tigo
+
+volumes:
+  tigo_state:
