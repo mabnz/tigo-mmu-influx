@@ -1,0 +1,25 @@
+[Unit]
+Description=Tigo MMU scraper -> InfluxDB (Flask + Waitress)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tigo
+Group=tigo
+WorkingDirectory=/opt/tigo
+EnvironmentFile=-/etc/tigo.env
+ExecStart=/opt/tigo/venv/bin/python /opt/tigo/tigo_app.py
+Restart=on-failure
+RestartSec=5
+
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+StateDirectory=tigo                  # creates /var/lib/tigo, owned by User
+ReadWritePaths=/var/lib/tigo
+
+[Install]
+WantedBy=multi-user.target
