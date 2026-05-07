@@ -38,7 +38,7 @@ LISTEN_HOST       = os.getenv("LISTEN_HOST", "0.0.0.0")
 LISTEN_PORT       = int(os.getenv("LISTEN_PORT", "8080"))
 HEALTH_STALE_SEC  = int(os.getenv("HEALTH_STALE_SEC", "60"))
 
-STATE_FILE = os.getenv("STATE_FILE", "/var/lib/tigo/state.json")
+STATE_FILE = os.getenv("STATE_FILE", "/opt/tigo/state.json")
 APP_TZ     = ZoneInfo(os.getenv("PAGE_TZ", "Pacific/Auckland"))
 
 logging.basicConfig(

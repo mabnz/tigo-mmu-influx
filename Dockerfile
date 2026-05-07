@@ -17,16 +17,16 @@ COPY tigo_app.py tigo_scraper.py ./
 
 # Run as a non-root user; create the state dir it expects.
 RUN useradd --system --uid 1000 --home-dir /app --shell /usr/sbin/nologin tigo \
-    && mkdir -p /var/lib/tigo \
-    && chown -R tigo:tigo /var/lib/tigo /app
+    && mkdir -p /opt/tigo \
+    && chown -R tigo:tigo /opt/tigo /app
 USER tigo
 
 ENV LISTEN_HOST=0.0.0.0 \
     LISTEN_PORT=8080 \
-    STATE_FILE=/var/lib/tigo/state.json
+    STATE_FILE=/opt/tigo/state.json
 
 EXPOSE 8080
-VOLUME ["/var/lib/tigo"]
+VOLUME ["/opt/tigo"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; \

@@ -8,21 +8,11 @@ MMU_URL=http://192.168.1.1/cgi-bin/mmdstatus
 MMU_USER=user
 MMU_PASS=changeme
 
-# ---------- InfluxDB ----------
-# 2 = InfluxDB 2.x / Cloud, 1 = InfluxDB 1.x
-INFLUX_VERSION=2
-
-# InfluxDB v2.x
+# ---------- InfluxDB 2.x ----------
 INFLUX_URL=http://localhost:8086
 INFLUX_TOKEN=PUT-YOUR-INFLUX-TOKEN-HERE
 INFLUX_ORG=my-org
 INFLUX_BUCKET=tigo
-
-# InfluxDB v1.x (only used when INFLUX_VERSION=1)
-INFLUXV1_URL=http://localhost:8086
-INFLUXV1_DB=tigo
-INFLUXV1_USER=
-INFLUXV1_PASS=
 
 # ---------- Measurement names ----------
 PANEL_MEASUREMENT=tigo_panel
@@ -49,5 +39,5 @@ HEALTH_STALE_SEC=60
 # ---------- Misc ----------
 # Where the scraper persists its state between restarts.
 # Inside Docker the compose file maps this to a named volume.
-STATE_FILE=/var/lib/tigo/state.json
+STATE_FILE=/opt/tigo/state.json
 LOG_LEVEL=INFO

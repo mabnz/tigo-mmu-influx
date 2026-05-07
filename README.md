@@ -1,7 +1,7 @@
 # tigo-mmu-influx
 
 Scrape panel-level data from a [Tigo](https://www.tigoenergy.com/) MMU (Module
-Maintenance Unit) status page and write it to **InfluxDB** (1.x or 2.x), with
+Maintenance Unit) status page and write it to **InfluxDB 2.x**, with
 a small Flask dashboard on top.
 
 The MMU exposes an HTML status page on the local network (typically at
@@ -25,8 +25,8 @@ between restarts.
 
 ## Requirements
 
-- A Tigo MMU reachable on your local network, with its status page enabled.
-- An InfluxDB instance (v2.x recommended) reachable from this app.
+- A Tigo CCA
+- An InfluxDB 2.x instance reachable from this app.
 - One of:
     - **Docker** + Docker Compose (easiest), or
     - **Python 3.11+** if you prefer to run it directly.
@@ -53,8 +53,6 @@ between restarts.
 
     - `MMU_URL`, `MMU_USER`, `MMU_PASS`
     - `INFLUX_URL`, `INFLUX_TOKEN`, `INFLUX_ORG`, `INFLUX_BUCKET`
-      (or the `INFLUXV1_*` values if you use InfluxDB 1.x — set
-      `INFLUX_VERSION=1`).
 
 3. Build and start:
 
@@ -82,7 +80,7 @@ docker compose pull && docker compose up -d --build
 ```
 
 State (success/failure counters, last panel snapshot) is persisted in the
-`tigo_state` named volume mounted at `/var/lib/tigo`.
+`tigo_state` named volume mounted at `/opt/tigo`.
 
 ---
 
@@ -110,10 +108,9 @@ The app listens on `http://0.0.0.0:8080` by default.
 A unit file is provided in [tigo.service](tigo.service). The expected layout is:
 
 ```
-/opt/tigo/                 # repo checkout
+/opt/tigo/                 # repo checkout (also holds state.json)
 /opt/tigo/venv/            # virtualenv with requirements.txt installed
 /etc/tigo.env              # your env file (chmod 600, owner tigo:tigo)
-/var/lib/tigo/             # state dir (created by systemd via StateDirectory)
 ```
 
 Setup:
@@ -150,7 +147,6 @@ Most useful knobs:
 | ------------------------ | --------------------------------------- | ---------------------------------------------------- |
 | `MMU_URL`                | `http://192.168.1.1/cgi-bin/mmdstatus`  | Tigo MMU status page                                 |
 | `MMU_USER` / `MMU_PASS`  | `user` / `tigo1`                        | MMU credentials (basic or digest auth, auto-tried)   |
-| `INFLUX_VERSION`         | `2`                                     | `2` for InfluxDB 2.x, `1` for InfluxDB 1.x           |
 | `INFLUX_URL`             | `http://localhost:8086`                 | InfluxDB v2 base URL                                 |
 | `INFLUX_TOKEN`           | —                                       | InfluxDB v2 API token                                |
 | `INFLUX_ORG`             | `my-org`                                | InfluxDB v2 organisation                             |
@@ -160,7 +156,7 @@ Most useful knobs:
 | `BACKOFF_AFTER_FAILURES` | `3`                                     | Start exponential backoff after this many failures   |
 | `LISTEN_HOST`            | `0.0.0.0`                               | Web server bind address                              |
 | `LISTEN_PORT`            | `8080`                                  | Web server port                                      |
-| `STATE_FILE`             | `/var/lib/tigo/state.json`              | Where to persist counters / last snapshot            |
+| `STATE_FILE`             | `/opt/tigo/state.json`                  | Where to persist counters / last snapshot            |
 | `PAGE_TZ`                | `Pacific/Auckland`                      | Timezone of the timestamp printed on the MMU page    |
 | `LOG_LEVEL`              | `INFO`                                  | Standard Python logging level                        |
 

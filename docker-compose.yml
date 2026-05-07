@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - tigo_state:/var/lib/tigo
+      - tigo_state:/opt/tigo
 
 volumes:
   tigo_state:

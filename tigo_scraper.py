@@ -24,19 +24,11 @@ MMU_URL  = os.getenv("MMU_URL",  "http://192.168.1.1/cgi-bin/mmdstatus")
 MMU_USER = os.getenv("MMU_USER", "user")
 MMU_PASS = os.getenv("MMU_PASS", "tigo1")
 
-INFLUX_VERSION = int(os.getenv("INFLUX_VERSION", "2"))
-
-# v2
+# InfluxDB 2.x
 INFLUX_URL    = os.getenv("INFLUX_URL",    "http://localhost:8086")
 INFLUX_TOKEN  = os.getenv("INFLUX_TOKEN",  "PUT-YOUR-INFLUX-TOKEN-HERE")
 INFLUX_ORG    = os.getenv("INFLUX_ORG",    "my-org")
 INFLUX_BUCKET = os.getenv("INFLUX_BUCKET", "tigo")
-
-# v1
-INFLUXV1_URL  = os.getenv("INFLUXV1_URL",  "http://localhost:8086")
-INFLUXV1_DB   = os.getenv("INFLUXV1_DB",   "tigo")
-INFLUXV1_USER = os.getenv("INFLUXV1_USER", "")
-INFLUXV1_PASS = os.getenv("INFLUXV1_PASS", "")
 
 PANEL_MEASUREMENT  = os.getenv("PANEL_MEASUREMENT",  "tigo_panel")
 SYSTEM_MEASUREMENT = os.getenv("SYSTEM_MEASUREMENT", "tigo_system")
@@ -213,24 +205,14 @@ def build_payload(data: dict) -> str:
 def write_influx(payload: str) -> None:
     if not payload:
         return
-    if INFLUX_VERSION == 2:
-        url = f"{INFLUX_URL.rstrip('/')}/api/v2/write"
-        params = {"org": INFLUX_ORG, "bucket": INFLUX_BUCKET, "precision": "ns"}
-        headers = {
-            "Authorization": f"Token {INFLUX_TOKEN}",
-            "Content-Type":  "text/plain; charset=utf-8",
-        }
-        r = _session.post(url, params=params, headers=headers,
-                          data=payload.encode("utf-8"), timeout=HTTP_TIMEOUT)
-    elif INFLUX_VERSION == 1:
-        url = f"{INFLUXV1_URL.rstrip('/')}/write"
-        params = {"db": INFLUXV1_DB, "precision": "ns"}
-        auth = (HTTPBasicAuth(INFLUXV1_USER, INFLUXV1_PASS)
-                if INFLUXV1_USER else None)
-        r = _session.post(url, params=params, auth=auth,
-                          data=payload.encode("utf-8"), timeout=HTTP_TIMEOUT)
-    else:
-        raise RuntimeError(f"Unsupported INFLUX_VERSION={INFLUX_VERSION}")
+    url = f"{INFLUX_URL.rstrip('/')}/api/v2/write"
+    params = {"org": INFLUX_ORG, "bucket": INFLUX_BUCKET, "precision": "ns"}
+    headers = {
+        "Authorization": f"Token {INFLUX_TOKEN}",
+        "Content-Type":  "text/plain; charset=utf-8",
+    }
+    r = _session.post(url, params=params, headers=headers,
+                      data=payload.encode("utf-8"), timeout=HTTP_TIMEOUT)
 
     if r.status_code >= 300:
         raise RuntimeError(f"InfluxDB write failed {r.status_code}: {r.text}")

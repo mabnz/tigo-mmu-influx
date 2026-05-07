@@ -18,8 +18,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
-StateDirectory=tigo                  # creates /var/lib/tigo, owned by User
-ReadWritePaths=/var/lib/tigo
+ReadWritePaths=/opt/tigo
 
 [Install]
 WantedBy=multi-user.target
