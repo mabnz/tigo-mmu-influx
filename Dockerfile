@@ -22,14 +22,14 @@ RUN useradd --system --uid 1000 --home-dir /app --shell /usr/sbin/nologin tigo \
 USER tigo
 
 ENV LISTEN_HOST=0.0.0.0 \
-    LISTEN_PORT=8080 \
+    LISTEN_PORT=8088 \
     STATE_FILE=/opt/tigo/state.json
 
-EXPOSE 8080
+EXPOSE 8088
 VOLUME ["/opt/tigo"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; \
-sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3).status==200 else 1)"
+sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8088/healthz', timeout=3).status==200 else 1)"
 
 CMD ["python", "tigo_app.py"]

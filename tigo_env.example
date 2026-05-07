@@ -33,7 +33,7 @@ BACKOFF_AFTER_FAILURES=3
 
 # ---------- Web server ----------
 LISTEN_HOST=0.0.0.0
-LISTEN_PORT=8080
+LISTEN_PORT=8088
 HEALTH_STALE_SEC=60
 
 # ---------- Misc ----------

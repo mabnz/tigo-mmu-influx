@@ -65,7 +65,7 @@ between restarts.
 4. Open the dashboard:
 
     ```
-    http://<docker-host>:8080/
+    http://<docker-host>:8088/
     ```
 
 Logs:
@@ -101,7 +101,7 @@ set -a; source ./tigo.env; set +a
 python tigo_app.py
 ```
 
-The app listens on `http://0.0.0.0:8080` by default.
+The app listens on `http://0.0.0.0:8088` by default.
 
 ---
 
@@ -157,7 +157,7 @@ Most useful knobs:
 | `MAX_INTERVAL_SEC`       | `300`                                   | Cap when backing off after failures                  |
 | `BACKOFF_AFTER_FAILURES` | `3`                                     | Start exponential backoff after this many failures   |
 | `LISTEN_HOST`            | `0.0.0.0`                               | Web server bind address                              |
-| `LISTEN_PORT`            | `8080`                                  | Web server port                                      |
+| `LISTEN_PORT`            | `8088`                                  | Web server port                                      |
 | `STATE_FILE`             | `/opt/tigo/state.json`                  | Where to persist counters / last snapshot            |
 | `PAGE_TZ`                | `Pacific/Auckland`                      | Timezone of the timestamp printed on the MMU page    |
 | `LOG_LEVEL`              | `INFO`                                  | Standard Python logging level                        |
