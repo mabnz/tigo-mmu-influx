@@ -271,6 +271,18 @@ header h1 {
 .pill.warn    .dot { background: var(--warn); }
 .pill.bad     .dot { background: var(--bad);  }
 .pill .label  { color: var(--text); }
+.pill.alert {
+    background: rgba(232,163,23,.12);
+    border-color: rgba(232,163,23,.40);
+    color: var(--warn);
+}
+.pill.alert .label { color: var(--warn); }
+.pill.danger {
+    background: rgba(212,69,58,.10);
+    border-color: rgba(212,69,58,.40);
+    color: var(--bad);
+}
+.pill.danger .label { color: var(--bad); }
 
 /* ---------- summary tiles ---------- */
 .summary {
@@ -339,6 +351,13 @@ header h1 {
 .power-bar > span { display: block; height: 100%; background: var(--accent);
                     transition: width .3s ease; }
 
+.reporting-bar {
+    height: 6px; border-radius: 4px;
+    background: var(--border); overflow: hidden; margin-top: 8px;
+}
+.reporting-bar > span { display: block; height: 100%; background: var(--good);
+                        transition: width .3s ease; }
+
 .rssi { display: inline-flex; gap: 2px; align-items: end;
         height: 14px; vertical-align: -2px; margin-left: 6px; }
 .rssi i { display: inline-block; width: 3px; background: var(--border-card);
@@ -353,6 +372,7 @@ header h1 {
     margin-bottom: 14px; padding: 10px 14px;
     border-radius: 10px; border: 1px solid var(--border);
     background: rgba(212,69,58,.10); color: var(--bad); font-weight: 500;
+    display: none;
 }
 footer {
     margin-top: 24px; font-size: 12px; color: var(--muted); text-align: center;
@@ -369,6 +389,8 @@ footer a { color: var(--muted); }
     <header>
         <h1>Tigo MMU</h1>
         <span class="pill" id="conn"><span class="dot"></span><span class="label">connecting…</span></span>
+        <span class="pill danger" id="status-msg" hidden><span class="label"></span></span>
+        <span class="pill alert" id="data-age" hidden>data updated: <span id="data-age-val">—</span></span>
         <span class="pill" id="updated">last update: —</span>
     </header>
 
@@ -377,7 +399,7 @@ footer a { color: var(--muted); }
     <section class="summary">
         <div class="stat"><div class="k">Panels reporting</div>
                           <div class="v" id="s-reporting">—</div>
-                          <div class="sub" id="s-reporting-sub"></div></div>
+                          <div class="reporting-bar"><span id="s-reporting-bar" style="width:0%"></span></div></div>
         <div class="stat"><div class="k">Total power</div>
                           <div class="v" id="s-power">—</div>
                           <div class="sub">across reporting panels</div></div>
@@ -439,12 +461,30 @@ function render(data) {
     document.getElementById("updated").textContent =
         "last update: " + timeAgo(data.last_success_at);
 
-    // banner
-    const banner = document.getElementById("banner");
+    // status message pill + matching "data last updated" pill
+    const statusPill = document.getElementById("status-msg");
+    const dataAgePill = document.getElementById("data-age");
     if (data.last_status_message) {
-        banner.textContent = data.last_status_message;
-        banner.hidden = false;
-    } else { banner.hidden = true; }
+        statusPill.querySelector(".label").textContent = "No communication";
+        statusPill.title = data.last_status_message;
+        statusPill.hidden = false;
+
+        // Extract a human timeframe from the MMU's message, e.g.
+        //   "NO COMMUNICATION. Last data was received 3 hours 6 minutes 20 seconds ago!"
+        // Falls back to the relative timeAgo() if we can't parse it.
+        let ageText = timeAgo(data.last_success_at);
+        const m = data.last_status_message.match(
+            /received\s+(.+?)\s+ago/i);
+        if (m) {
+            // Drop the trailing "N seconds" component for brevity.
+            ageText = m[1].replace(/\s*\d+\s+seconds?$/i, "").trim() + " ago";
+        }
+        document.getElementById("data-age-val").textContent = ageText;
+        dataAgePill.hidden = false;
+    } else {
+        statusPill.hidden = true;
+        dataAgePill.hidden = true;
+    }
 
     // summary
     const panels = data.panels || [];
@@ -453,8 +493,8 @@ function render(data) {
 
     document.getElementById("s-reporting").textContent =
         reporting.length + " / " + panels.length;
-    document.getElementById("s-reporting-sub").textContent =
-        panels.length ? Math.round(reporting.length / panels.length * 100) + "% online" : "";
+    document.getElementById("s-reporting-bar").style.width =
+        (panels.length ? (reporting.length / panels.length * 100) : 0) + "%";
     document.getElementById("s-power").innerHTML =
         fmt(totalPower, 2) + ' <small style="font-size:13px;color:var(--muted)">W</small>';
     document.getElementById("s-unit").textContent = data.last_unit_id || "—";
@@ -465,7 +505,7 @@ function render(data) {
     document.getElementById("s-failures").textContent =
         data.consecutive_failures
             ? data.consecutive_failures + " consecutive failures"
-            : (data.failure_count + " failures total");
+            : (data.success_count + " successful scrapes");
 
     // grid
     const grid = document.getElementById("grid");
