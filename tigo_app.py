@@ -351,6 +351,19 @@ header h1 {
 .power-bar > span { display: block; height: 100%; background: var(--accent);
                     transition: width .3s ease; }
 
+.event {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    font-size: 11px; font-weight: 600; line-height: 1.3;
+    color: var(--warn);
+    background: rgba(232,163,23,.12);
+    border: 1px solid rgba(232,163,23,.40);
+    border-radius: 6px;
+    padding: 4px 8px;
+    word-break: break-word;
+}
+.event::before { content: "⚠ "; }
+
 .reporting-bar {
     height: 6px; border-radius: 4px;
     background: var(--border); overflow: hidden; margin-top: 8px;
@@ -407,7 +420,6 @@ footer a { color: var(--muted); }
         <span class="pill" id="conn"><span class="dot"></span><span class="label">connecting…</span></span>
         <span class="pill danger" id="status-msg" hidden><span class="label"></span></span>
         <span class="pill alert" id="data-age" hidden>data updated: <span id="data-age-val">—</span></span>
-        <span class="pill" id="updated">last update: —</span>
     </header>
 
     <div id="banner" class="banner" hidden></div>
@@ -473,14 +485,11 @@ function render(data) {
     else                    { cls += " bad";  lbl.textContent = "offline " + timeAgo(data.last_success_at); }
     conn.className = cls;
 
-    document.getElementById("updated").textContent =
-        "last update: " + timeAgo(data.last_success_at);
-
     // status message pill + matching "data last updated" pill
     const statusPill = document.getElementById("status-msg");
     const dataAgePill = document.getElementById("data-age");
     if (data.last_status_message) {
-        statusPill.querySelector(".label").textContent = "No communication";
+        statusPill.querySelector(".label").textContent = "Cloud disconnected";
         statusPill.title = data.last_status_message;
         statusPill.hidden = false;
 
@@ -539,6 +548,10 @@ function render(data) {
         // power as % of card-local 100% scale; otherwise just show value
         const powerPct = p.power_pct != null ? Math.max(0, Math.min(100, p.power_pct)) : 0;
 
+        const eventHtml = p.event
+            ? `<div class="event">Event: ${p.event}</div>`
+            : "";
+
         card.innerHTML = `
             <div class="top">
                 <span class="label">${p.label ?? "?"}</span>
@@ -558,6 +571,7 @@ function render(data) {
                 <div><div class="k">RSSI ${rssiHtml}</div>
                      <div class="v">${p.rssi ?? "—"}</div></div>
                 <div class="power-bar"><span style="width:${powerPct}%"></span></div>
+                ${eventHtml}
             </div>
         `;
         grid.appendChild(card);
