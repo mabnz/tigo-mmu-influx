@@ -381,6 +381,22 @@ footer a { color: var(--muted); }
 @media (max-width: 480px) {
     .card .label { font-size: 20px; }
     header h1 { font-size: 19px; }
+    /* Tighter summary tiles so 2 fit per row on a ~360px screen. */
+    .summary {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+    }
+    .summary .stat { padding: 10px 12px; }
+    .summary .stat .v { font-size: 18px; }
+    /* Two-up panel cards on phones. */
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    .card { padding: 10px 12px; border-radius: 12px; }
+    .card .meta { font-size: 10px; margin-bottom: 8px; }
+    .kpis { gap: 6px 10px; }
+    .kpis .v { font-size: 15px; }
 }
 </style>
 </head>
