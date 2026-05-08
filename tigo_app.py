@@ -11,6 +11,7 @@ Endpoints:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -68,6 +69,8 @@ _state = {
     "last_panels_reporting": 0,
     "last_unit_id":          None,
     "last_status_message":   None,
+    "last_data_received_at": None,   # epoch when panel readings last changed
+    "last_data_signature":   None,   # hash of the most recent panel readings
     "current_interval_sec":  SCRAPE_INTERVAL_SEC,
     "panels":                [],   # latest panel readings (full list)
 }
@@ -77,6 +80,7 @@ _PERSIST_KEYS = (
     "success_count", "failure_count",
     "last_panels", "last_panels_reporting",
     "last_unit_id", "last_status_message",
+    "last_data_received_at", "last_data_signature",
     "panels",
 )
 
@@ -147,14 +151,34 @@ def _scrape_job() -> None:
     try:
         data = tigo_scraper.scrape_and_write()
         reporting = sum(1 for p in data["panels"] if p["vin"] is not None)
+        now = time.time()
+        status_msg = data.get("status_message")
+        # Detect whether the panel readings actually changed since last scrape.
+        # We hash the panel list (sorted keys, only the volatile fields), so
+        # "data updated" reflects when the MMU genuinely produced new numbers,
+        # ignoring its own (often minute-rounded) freshness banner.
+        sig_payload = [
+            {k: p.get(k) for k in (
+                "label", "vin", "vout", "current_a", "power_w",
+                "temp_c", "rssi", "event", "status_raw",
+            )}
+            for p in data["panels"]
+        ]
+        signature = hashlib.sha1(
+            json.dumps(sig_payload, sort_keys=True, default=str).encode()
+        ).hexdigest()
         with _state_lock:
-            _state["last_success_at"]       = time.time()
+            prev_sig = _state.get("last_data_signature")
+            if prev_sig != signature or _state["last_data_received_at"] is None:
+                _state["last_data_received_at"] = now
+                _state["last_data_signature"]   = signature
+            _state["last_success_at"]       = now
             _state["success_count"]        += 1
             _state["consecutive_failures"]  = 0
             _state["last_panels"]           = len(data["panels"])
             _state["last_panels_reporting"] = reporting
             _state["last_unit_id"]          = data.get("unit_id")
-            _state["last_status_message"]   = data.get("status_message")
+            _state["last_status_message"]   = status_msg
             _state["last_error"]            = None
             _state["panels"]                = data["panels"]
         log.info("scrape ok: %d/%d panels reporting in %.2fs",
@@ -498,17 +522,8 @@ function render(data) {
         statusPill.title = data.last_status_message;
         statusPill.hidden = false;
 
-        // Extract a human timeframe from the MMU's message, e.g.
-        //   "NO COMMUNICATION. Last data was received 3 hours 6 minutes 20 seconds ago!"
-        // Falls back to the relative timeAgo() if we can't parse it.
-        let ageText = timeAgo(data.last_success_at);
-        const m = data.last_status_message.match(
-            /received\s+(.+?)\s+ago/i);
-        if (m) {
-            // Drop the trailing "N seconds" component for brevity.
-            ageText = m[1].replace(/\s*\d+\s+seconds?$/i, "").trim() + " ago";
-        }
-        document.getElementById("data-age-val").textContent = ageText;
+        document.getElementById("data-age-val").textContent =
+            timeAgo(data.last_data_received_at);
         dataAgePill.hidden = false;
     } else {
         statusPill.hidden = true;
@@ -624,6 +639,7 @@ def api_panels():
         "current_interval_sec":  s["current_interval_sec"],
         "last_unit_id":          s["last_unit_id"],
         "last_status_message":   s["last_status_message"],
+        "last_data_received_at": s["last_data_received_at"],
         "panels":                s["panels"],
     })
 
