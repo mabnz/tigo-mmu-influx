@@ -458,7 +458,8 @@ footer a { color: var(--muted); }
                           <div class="v" id="s-reporting">—</div>
                           <div class="reporting-bar"><span id="s-reporting-bar" style="width:0%"></span></div></div>
         <div class="stat"><div class="k">Total power</div>
-                          <div class="v" id="s-power">—</div></div>
+                          <div class="v" id="s-power">—</div>
+                          <div class="sub" id="s-power-sub"></div></div>
         <div class="stat"><div class="k">Unit ID</div>
                           <div class="v" id="s-unit" style="font-size:14px;font-family:ui-monospace,monospace">—</div>
                           <div class="sub" id="s-started"></div></div>
@@ -541,6 +542,18 @@ function render(data) {
         (panels.length ? (reporting.length / panels.length * 100) : 0) + "%";
     document.getElementById("s-power").innerHTML =
         fmt(totalPower, 2) + ' <small style="font-size:13px;color:var(--muted)">W</small>';
+
+    // Per-string breakdown (string letter = first char of panel label, e.g. A1 -> A)
+    const stringTotals = {};
+    for (const p of reporting) {
+        const s = (p.label || "").charAt(0).toUpperCase();
+        if (!s) continue;
+        stringTotals[s] = (stringTotals[s] || 0) + (p.power_w || 0);
+    }
+    const stringKeys = Object.keys(stringTotals).sort();
+    document.getElementById("s-power-sub").textContent = stringKeys.length
+        ? stringKeys.map(k => `${k} ${fmt(stringTotals[k], 0)} W`).join(" · ")
+        : "";
     document.getElementById("s-unit").textContent = data.last_unit_id || "—";
     document.getElementById("s-started").textContent =
         data.started_at ? "since " + data.started_at : "";
