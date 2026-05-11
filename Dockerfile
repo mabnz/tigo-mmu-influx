@@ -14,6 +14,8 @@ RUN pip install -r requirements.txt
 
 # App code.
 COPY tigo_app.py tigo_scraper.py ./
+COPY templates/ ./templates/
+COPY static/ ./static/
 
 # Run as a non-root user; create the state dir it expects.
 RUN useradd --system --uid 1000 --home-dir /app --shell /usr/sbin/nologin tigo \

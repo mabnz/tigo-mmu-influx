@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Tigo MMU</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>Tigo MMU</h1>
+        <span class="pill" id="conn"><span class="dot"></span><span class="label">connecting…</span></span>
+        <span class="pill danger" id="status-msg" hidden><span class="label"></span></span>
+        <span class="pill alert" id="data-age" hidden>data updated: <span id="data-age-val">—</span></span>
+    </header>
+
+    <div id="banner" class="banner" hidden></div>
+
+    <section class="summary">
+        <div class="stat"><div class="k">Panels reporting</div>
+                          <div class="v" id="s-reporting">—</div>
+                          <div class="reporting-bar"><span id="s-reporting-bar" style="width:0%"></span></div></div>
+        <div class="stat"><div class="k">Total power</div>
+                          <div class="v" id="s-power">—</div>
+                          <div class="sub" id="s-power-sub"></div></div>
+        <div class="stat"><div class="k">Unit ID</div>
+                          <div class="v" id="s-unit" style="font-size:14px;font-family:ui-monospace,monospace">—</div>
+                          <div class="sub" id="s-started"></div></div>
+        <div class="stat"><div class="k">Scrape interval</div>
+                          <div class="v" id="s-interval">—</div>
+                          <div class="sub" id="s-failures"></div></div>
+    </section>
+
+    <section class="grid" id="grid"></section>
+
+    <footer>
+        <a href="/status">/status</a> ·
+        <a href="/healthz">/healthz</a> ·
+        <a href="/metrics">/metrics</a> ·
+        <a href="/text">/text</a>
+    </footer>
+</div>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
