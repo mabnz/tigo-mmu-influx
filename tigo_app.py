@@ -503,16 +503,22 @@ function timeAgo(epoch) {
 }
 
 function render(data) {
-    // header pill
+    // header pill — reflect actual data freshness, not just scrape success.
+    // If the MMU is reporting a status message (e.g. cloud disconnected) and
+    // the underlying panel readings haven't changed in a while, we shouldn't
+    // claim we're "live" just because scrapes are still succeeding.
     const conn = document.getElementById("conn");
     const lbl  = conn.querySelector(".label");
-    const ageS = data.last_success_at
-                 ? Math.round(Date.now()/1000 - data.last_success_at) : null;
+    const freshnessEpoch = data.last_status_message
+        ? (data.last_data_received_at || data.last_success_at)
+        : data.last_success_at;
+    const ageS = freshnessEpoch
+                 ? Math.round(Date.now()/1000 - freshnessEpoch) : null;
     let cls = "pill";
     if (ageS == null)       { cls += " bad";  lbl.textContent = "no data"; }
     else if (ageS <= 30)    { cls += " ok";   lbl.textContent = "live"; }
-    else if (ageS <= 120)   { cls += " warn"; lbl.textContent = "stale " + timeAgo(data.last_success_at); }
-    else                    { cls += " bad";  lbl.textContent = "offline " + timeAgo(data.last_success_at); }
+    else if (ageS <= 120)   { cls += " warn"; lbl.textContent = "stale " + timeAgo(freshnessEpoch); }
+    else                    { cls += " bad";  lbl.textContent = "offline " + timeAgo(freshnessEpoch); }
     conn.className = cls;
 
     // status message pill + matching "data last updated" pill
