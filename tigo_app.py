@@ -568,8 +568,8 @@ function render(data) {
         (data.current_interval_sec || "—") + ' <small style="font-size:13px;color:var(--muted)">s</small>';
     document.getElementById("s-failures").textContent =
         data.consecutive_failures
-            ? data.consecutive_failures + " consecutive failures"
-            : (data.success_count + " successful scrapes");
+            ? data.consecutive_failures.toLocaleString() + " consecutive failures"
+            : (data.success_count.toLocaleString() + " successful scrapes");
 
     // grid
     // If the underlying panel readings haven't changed in >30min, mark each
