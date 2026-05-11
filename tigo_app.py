@@ -517,8 +517,8 @@ function render(data) {
     let cls = "pill";
     if (ageS == null)       { cls += " bad";  lbl.textContent = "no data"; }
     else if (ageS <= 30)    { cls += " ok";   lbl.textContent = "live"; }
-    else if (ageS <= 120)   { cls += " warn"; lbl.textContent = "stale " + timeAgo(freshnessEpoch); }
-    else                    { cls += " bad";  lbl.textContent = "offline " + timeAgo(freshnessEpoch); }
+    else if (ageS <= 120)   { cls += " warn"; lbl.textContent = "stale"; }
+    else                    { cls += " bad";  lbl.textContent = "offline"; }
     conn.className = cls;
 
     // status message pill + matching "data last updated" pill
