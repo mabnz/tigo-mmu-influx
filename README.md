@@ -4,7 +4,16 @@ Scrape panel-level data from a [Tigo](https://www.tigoenergy.com/) MMU (Module
 Maintenance Unit) status page and write it to **InfluxDB 2.x**, with
 a small Flask dashboard on top.
 
-![Dashboard screenshot](docs/dashboard.png)
+![Dashboard screenshot](docs/dashboard-light.png)
+
+<details>
+<summary>More screenshots</summary>
+
+| Dark | Mobile |
+| --- | --- |
+| ![Dark dashboard](docs/dashboard-dark.png) | <img src="docs/dashboard-mobile.png" alt="Mobile dashboard" width="260"> |
+
+</details>
 
 The MMU exposes an HTML status page on the local network (typically at
 `http://192.168.1.1/cgi-bin/mmdstatus`). This app polls that page on a
