@@ -352,6 +352,7 @@ header h1 {
     background: rgba(63,207,127,.15); color: var(--good);
 }
 .card.offline .badge { background: rgba(154,161,177,.22); color: var(--offline); }
+.card.stale .badge   { background: rgba(232,163,23,.18);  color: var(--warn); }
 
 .card .meta { font-size: 11px; color: var(--muted); line-height: 1.35;
               margin-bottom: 10px; word-break: break-all; }
@@ -571,12 +572,23 @@ function render(data) {
             : (data.success_count + " successful scrapes");
 
     // grid
+    // If the underlying panel readings haven't changed in >30min, mark each
+    // reporting panel's badge as "stale" — the values shown are last-known,
+    // not live.
+    const STALE_AFTER_SEC = 30 * 60;
+    const dataAgeS = data.last_data_received_at
+        ? Math.round(Date.now()/1000 - data.last_data_received_at) : null;
+    const dataStale = dataAgeS != null && dataAgeS > STALE_AFTER_SEC;
+
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     for (const p of panels) {
         const offline = p.vin == null;
+        const stale   = !offline && dataStale;
         const card = document.createElement("div");
-        card.className = "card" + (offline ? " offline" : "");
+        card.className = "card"
+            + (offline ? " offline" : "")
+            + (stale   ? " stale"   : "");
 
         const bars = rssiBars(p.rssi);
         const rssiHtml = `<span class="rssi" title="RSSI ${p.rssi ?? "n/a"}">
@@ -591,10 +603,11 @@ function render(data) {
             ? `<div class="event${p.power_w === 0 ? " danger" : ""}">Event: ${p.event}</div>`
             : "";
 
+        const badgeText = offline ? "offline" : (stale ? "stale" : "online");
         card.innerHTML = `
             <div class="top">
                 <span class="label">${p.label ?? "?"}</span>
-                <span class="badge">${offline ? "offline" : "online"}</span>
+                <span class="badge">${badgeText}</span>
             </div>
             <div class="meta">
                 <code>${p.mac ?? ""}</code><br>
