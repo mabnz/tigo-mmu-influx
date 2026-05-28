@@ -8,6 +8,9 @@
     --border:    #e3e7ef;
     --border-card: #d6deef;
     --accent:    #2f80ed;
+    --power-track: #e6dfcf;
+    --power-fill-a: #ff7a18;
+    --power-fill-b: #ffb347;
     --good:      #1eaa5c;
     --warn:      #e8a317;
     --bad:       #d4453a;
@@ -25,6 +28,9 @@
         --border:      #262c40;
         --border-card: #324070;
         --accent:      #5aa1ff;
+        --power-track: #3b3248;
+        --power-fill-a: #ff9f43;
+        --power-fill-b: #ffd166;
         --good:        #3fcf7f;
         --warn:        #f0b94a;
         --bad:         #ef5a4f;
@@ -139,9 +145,13 @@ header h1 {
 
 .power-bar {
     grid-column: 1 / -1; height: 6px; border-radius: 4px;
-    background: var(--border-card); overflow: hidden; margin-top: 4px;
+    background: var(--power-track); overflow: hidden; margin-top: 4px;
+    border: 1px solid rgba(255,255,255,.85);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.08);
 }
-.power-bar > span { display: block; height: 100%; background: var(--accent);
+.power-bar > span { display: block; height: 100%;
+                    background: linear-gradient(90deg, var(--power-fill-a), var(--power-fill-b));
+                    box-shadow: inset 0 0 0 1px rgba(255,255,255,.45);
                     transition: width .3s ease; }
 
 .event {

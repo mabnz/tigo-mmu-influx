@@ -1,4 +1,5 @@
 const REFRESH_MS = 5000;        // poll cadence; independent of scrape interval
+const PANEL_MAX_WATTS = 505;    // cap for per-panel power bar scaling
 
 function fmt(v, digits = 2) {
     return (v === null || v === undefined || Number.isNaN(v))
@@ -114,8 +115,9 @@ function render(data) {
                 `<i class="${bars >= i ? "on" : ""}"></i>`).join("")}
         </span>`;
 
-        // power as % of card-local 100% scale; otherwise just show value
-        const powerPct = p.power_pct != null ? Math.max(0, Math.min(100, p.power_pct)) : 0;
+        // Scale bar to each panel's output, capped at PANEL_MAX_WATTS.
+        const powerW = Number(p.power_w) || 0;
+        const powerPct = Math.max(0, Math.min(100, (powerW / PANEL_MAX_WATTS) * 100));
 
         const eventHtml = p.event
             ? `<div class="event${p.power_w === 0 ? " danger" : ""}">Event: ${p.event}</div>`
