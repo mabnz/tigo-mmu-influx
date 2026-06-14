@@ -116,8 +116,12 @@ function render(data) {
         </span>`;
 
         // Scale bar to each panel's output, capped at PANEL_MAX_WATTS.
-        const powerW = Number(p.power_w) || 0;
-        const powerPct = Math.max(0, Math.min(100, (powerW / PANEL_MAX_WATTS) * 100));
+        const powerRaw = p.power_w;
+        const powerNum = Number(powerRaw);
+        const powerForBar = Number.isFinite(powerNum) ? powerNum : 0;
+        const powerPct = Math.max(0, Math.min(100, (powerForBar / PANEL_MAX_WATTS) * 100));
+        const powerNowText = powerRaw == null ? "—" : `${fmt(powerRaw, 0)}W`;
+        const powerScaleText = `${powerNowText}/${PANEL_MAX_WATTS}W`;
 
         const eventHtml = p.event
             ? `<div class="event${p.power_w === 0 ? " danger" : ""}">Event: ${p.event}</div>`
@@ -143,6 +147,7 @@ function render(data) {
                 <div><div class="k">RSSI ${rssiHtml}</div>
                      <div class="v">${p.rssi ?? "—"}</div></div>
                 <div class="power-bar"><span style="width:${powerPct}%"></span></div>
+                <div class="power-scale">${powerScaleText}</div>
                 ${eventHtml}
             </div>
         `;
